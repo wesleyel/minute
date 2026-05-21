@@ -93,6 +93,47 @@ pnpm db:migrate:deploy && pnpm dev
 
 9. That’s all! 🎉 Try accessing http://localhost:4000/app.
 
+## Build and run the production service locally
+
+After completing the local setup above, make sure the Postgres container is running:
+
+```sh
+docker compose up -d db
+```
+
+Apply database migrations and build the app:
+
+```sh
+pnpm db:migrate:deploy
+pnpm build
+```
+
+Start the production service in the foreground:
+
+```sh
+pnpm start
+```
+
+The app will be available at http://localhost:4000.
+
+To keep the service running in the background, use a `tmux` session:
+
+```sh
+tmux new-session -d -s minute-service -c "$PWD" 'pnpm start'
+```
+
+Attach to the service session:
+
+```sh
+tmux attach -t minute-service
+```
+
+Stop the background service:
+
+```sh
+tmux kill-session -t minute-service
+```
+
 ## License
 
 [AGPLv3](./LICENSE)
