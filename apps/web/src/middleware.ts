@@ -10,7 +10,7 @@ import { nextAuthPageOptions } from "../config/next-auth-page-options";
 import { serverEnv } from "../env/server.mjs";
 import { routing } from "./i18n/routing";
 
-const PUBLIC_PAGES = ["/auth/sign-in"];
+const PUBLIC_PAGES = ["/auth/sign-in", "/obs/timer"];
 const PUBLIC_FILES = ["/favicon.ico"];
 
 const generateCsp = (nonce: string) => {

@@ -134,6 +134,29 @@ Stop the background service:
 tmux kill-session -t minute-service
 ```
 
+## OBS timer and Raycast shortcuts
+
+The OBS timer page is available without signing in:
+
+```text
+http://localhost:4000/en/obs/timer
+```
+
+It uses the first user in the database by default. To pin the OBS and Raycast
+APIs to a specific user, set the optional `OBS_RAYCAST_USER_ID` environment
+variable to that user's UUID.
+
+Raycast script commands are in `raycast/`:
+
+```sh
+raycast/toggle-minute-timer.sh "Task note" "Folder name"
+raycast/start-minute-timer.sh "Task note" "Folder name"
+raycast/stop-minute-timer.sh
+raycast/minute-timer-status.sh
+```
+
+Set `MINUTE_URL` if the app is not running at `http://localhost:4000`.
+
 ## License
 
 [AGPLv3](./LICENSE)

@@ -7,6 +7,7 @@ export const serverEnv = createEnv({
     NEXTAUTH_URL: z.string().url().startsWith("http"),
     NEXTAUTH_SECRET: z.string(),
     ALLOWED_IPS: z.string().optional(),
+    OBS_RAYCAST_USER_ID: z.string().uuid().optional(),
     ALLOWED_GITHUB_IDS: z
       .string()
       .regex(/^[0-9,]+$/)
