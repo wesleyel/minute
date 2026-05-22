@@ -15,7 +15,10 @@
     },
     "AccountMenu": {
       "totalDuration": "Total Duration",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "apiToken": "API Token",
+      "regenerateApiToken": "Regenerate Token",
+      "noApiToken": "No token yet"
     },
     "SidebarNav": {
       "timer": "Timer",

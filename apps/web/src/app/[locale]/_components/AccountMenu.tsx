@@ -13,7 +13,7 @@ import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useState, useMemo, useCallback, useRef } from "react";
 import CountUp from "react-countup";
-import { PiSignOut, PiUserCircleDuotone } from "react-icons/pi";
+import { PiArrowsClockwise, PiSignOut, PiUserCircleDuotone } from "react-icons/pi";
 import { totalDurationVisibleAtom } from "../../../app/store";
 import { trpc } from "./TrpcProvider";
 
@@ -24,6 +24,13 @@ export const AccountMenu = () => {
     totalDurationVisibleAtom,
   );
   const currentUser = trpc.currentUser.getCurrentUser.useQuery();
+  const apiTokenQuery = trpc.currentUser.getApiToken.useQuery();
+  const regenerateApiTokenMutation =
+    trpc.currentUser.regenerateApiToken.useMutation({
+      onSuccess: () => {
+        void apiTokenQuery.refetch();
+      },
+    });
 
   const [prevDuration, setPrevDuration] = useState<number>(0);
   const delayTimer = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -53,6 +60,10 @@ export const AccountMenu = () => {
   const handleSignOutButtonClick = useCallback(async () => {
     await signOut({ redirect: true, callbackUrl: "/auth/sign-in" });
   }, []);
+
+  const handleRegenerateApiToken = useCallback(() => {
+    regenerateApiTokenMutation.mutate();
+  }, [regenerateApiTokenMutation]);
 
   return (
     <div className="text-sm relative flex items-center">
@@ -87,6 +98,25 @@ export const AccountMenu = () => {
                           onEnd={handleEnd}
                         />
                       </p>
+                    </div>
+                  </div>
+                  <div className="p-4 border-t border-gray-200">
+                    <p className="text-xs text-gray-500 mb-1">
+                      {t("apiToken")}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-xs font-mono text-gray-700 truncate flex-1">
+                        {apiTokenQuery.data ?? t("noApiToken")}
+                      </p>
+                      <button
+                        type="button"
+                        title={t("regenerateApiToken")}
+                        className="p-1 rounded-sm hover:bg-gray-200 shrink-0"
+                        onClick={handleRegenerateApiToken}
+                        disabled={regenerateApiTokenMutation.isPending}
+                      >
+                        <PiArrowsClockwise className="text-base text-gray-600" />
+                      </button>
                     </div>
                   </div>
                   <div className="p-1 flex items-center w-full border-t border-gray-200">

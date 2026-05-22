@@ -15,7 +15,10 @@
     },
     "AccountMenu": {
       "totalDuration": "計測した合計",
-      "signOut": "ログアウト"
+      "signOut": "ログアウト",
+      "apiToken": "API トークン",
+      "regenerateApiToken": "トークンを再生成",
+      "noApiToken": "トークンなし"
     },
     "SidebarNav": {
       "timer": "計測する",
