@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { PiTimer, PiCalendarBlank, PiChartBar } from "react-icons/pi";
+import { PiTimer, PiCalendarBlank, PiChartBar, PiBookOpen } from "react-icons/pi";
 import { Duration } from "./Duration";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { trpc } from "./TrpcProvider";
@@ -27,6 +27,10 @@ export const SidebarNav = () => {
         <SidebarNavItem barColor="blue" href="/app/reports">
           <PiChartBar size={22} className="mr-2 text-green-500" />
           {t("reports")}
+        </SidebarNavItem>
+        <SidebarNavItem barColor="purple" href="/app/api-reference">
+          <PiBookOpen size={22} className="mr-2 text-purple-500" />
+          {t("apiReference")}
         </SidebarNavItem>
       </ul>
     </nav>

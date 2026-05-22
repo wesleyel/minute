@@ -17,13 +17,15 @@
       "totalDuration": "Total Duration",
       "signOut": "Sign out",
       "apiToken": "API Token",
+      "copyApiToken": "Copy Token",
       "regenerateApiToken": "Regenerate Token",
       "noApiToken": "No token yet"
     },
     "SidebarNav": {
       "timer": "Timer",
       "calendar": "Calendar",
-      "reports": "Reports"
+      "reports": "Reports",
+      "apiReference": "API Reference"
     },
     "SidebarTab": {
       "folders": "Folders",
@@ -204,6 +206,26 @@
       "categoryCreated": "Category added",
       "categoryUpdated": "Category updated",
       "categoryDeleted": "Category deleted"
+    }
+  },
+  "pages": {
+    "ApiReference": {
+      "title": "API Reference",
+      "description": "Use the REST API to manage your time entries programmatically.",
+      "authentication": "Authentication",
+      "authDescription": "All API requests require a Bearer token in the Authorization header. You can find or regenerate your token in the account menu.",
+      "endpoints": "Endpoints",
+      "getEntriesDescription": "List time entries",
+      "postEntriesDescription": "Create a time entry",
+      "getEntryDescription": "Get a time entry",
+      "putEntryDescription": "Update a time entry",
+      "deleteEntryDescription": "Delete a time entry",
+      "cursorStartedAt": "Cursor startedAt for pagination",
+      "cursorId": "Cursor ID for pagination",
+      "startedAt": "Start time (ISO 8601)",
+      "stoppedAt": "Stop time (ISO 8601)",
+      "description": "Task description",
+      "folderId": "Folder ID (UUID)"
     }
   }
 }

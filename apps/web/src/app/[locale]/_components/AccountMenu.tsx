@@ -13,7 +13,7 @@ import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useState, useMemo, useCallback, useRef } from "react";
 import CountUp from "react-countup";
-import { PiArrowsClockwise, PiSignOut, PiUserCircleDuotone } from "react-icons/pi";
+import { PiArrowsClockwise, PiCopy, PiSignOut, PiUserCircleDuotone } from "react-icons/pi";
 import { totalDurationVisibleAtom } from "../../../app/store";
 import { trpc } from "./TrpcProvider";
 
@@ -65,6 +65,20 @@ export const AccountMenu = () => {
     regenerateApiTokenMutation.mutate();
   }, [regenerateApiTokenMutation]);
 
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  const handleCopyApiToken = useCallback(() => {
+    if (!apiTokenQuery.data) return;
+    void navigator.clipboard.writeText(apiTokenQuery.data).then(() => {
+      setCopied(true);
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    });
+  }, [apiTokenQuery.data]);
+
   return (
     <div className="text-sm relative flex items-center">
       <Menu>
@@ -108,6 +122,15 @@ export const AccountMenu = () => {
                       <p className="text-xs font-mono text-gray-700 truncate flex-1">
                         {apiTokenQuery.data ?? t("noApiToken")}
                       </p>
+                      <button
+                        type="button"
+                        title={t("copyApiToken")}
+                        className="p-1 rounded-sm hover:bg-gray-200 shrink-0"
+                        onClick={handleCopyApiToken}
+                        disabled={!apiTokenQuery.data}
+                      >
+                        <PiCopy className={`text-base ${copied ? "text-green-500" : "text-gray-600"}`} />
+                      </button>
                       <button
                         type="button"
                         title={t("regenerateApiToken")}

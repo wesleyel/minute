@@ -9,6 +9,7 @@ const barStyle = tv({
       red: "bg-red-500",
       green: "bg-green-500",
       blue: "bg-blue-500",
+      purple: "bg-purple-500",
     },
     isCurrent: {
       false: "bg-transparent",
@@ -18,7 +19,7 @@ const barStyle = tv({
 
 type Props = {
   href: string;
-  barColor: "red" | "green" | "blue";
+  barColor: "red" | "green" | "blue" | "purple";
   children: ReactNode;
 };
 

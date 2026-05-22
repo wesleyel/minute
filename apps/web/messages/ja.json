@@ -17,13 +17,15 @@
       "totalDuration": "計測した合計",
       "signOut": "ログアウト",
       "apiToken": "API トークン",
+      "copyApiToken": "トークンをコピー",
       "regenerateApiToken": "トークンを再生成",
       "noApiToken": "トークンなし"
     },
     "SidebarNav": {
       "timer": "計測する",
       "calendar": "カレンダーを見る",
-      "reports": "振り返る"
+      "reports": "振り返る",
+      "apiReference": "API リファレンス"
     },
     "SidebarTab": {
       "folders": "フォルダ",
@@ -205,6 +207,26 @@
       "categoryCreated": "カテゴリを追加しました",
       "categoryUpdated": "カテゴリを更新しました",
       "categoryDeleted": "カテゴリを削除しました"
+    }
+  },
+  "pages": {
+    "ApiReference": {
+      "title": "API リファレンス",
+      "description": "REST API を使用して、時間の記録をプログラムから管理できます。",
+      "authentication": "認証",
+      "authDescription": "すべての API リクエストには、Authorization ヘッダーに Bearer トークンが必要です。トークンはアカウントメニューで確認・再生成できます。",
+      "endpoints": "エンドポイント",
+      "getEntriesDescription": "記録の一覧を取得",
+      "postEntriesDescription": "記録を作成",
+      "getEntryDescription": "記録を取得",
+      "putEntryDescription": "記録を更新",
+      "deleteEntryDescription": "記録を削除",
+      "cursorStartedAt": "ページネーション用カーソルの startedAt",
+      "cursorId": "ページネーション用カーソルの ID",
+      "startedAt": "開始時刻（ISO 8601）",
+      "stoppedAt": "終了時刻（ISO 8601）",
+      "description": "タスクの説明",
+      "folderId": "フォルダ ID（UUID）"
     }
   }
 }
