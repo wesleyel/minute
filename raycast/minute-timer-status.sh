@@ -7,10 +7,12 @@
 # @raycast.packageName Minute
 #
 # Optional parameters:
-# @raycast.icon ℹ️
+# @raycast.icon 📊
+# @raycast.description Show whether the Minute timer is idle or running.
 
 set -euo pipefail
 
+# 查询当前 Minute timer 状态；运行中时输出已计时时长和 note，否则输出 Idle。
 MINUTE_URL="${MINUTE_URL:-http://localhost:4000}"
 
 response=$(curl -sS -w "\n%{http_code}" "$MINUTE_URL/api/raycast/timer")

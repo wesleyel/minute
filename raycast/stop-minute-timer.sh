@@ -7,10 +7,12 @@
 # @raycast.packageName Minute
 #
 # Optional parameters:
-# @raycast.icon ⏸
+# @raycast.icon 🛑
+# @raycast.description Stop the currently running Minute timer.
 
 set -euo pipefail
 
+# 停止当前正在运行的 Minute timer；没有运行中计时器时由 API 返回错误。
 MINUTE_URL="${MINUTE_URL:-http://localhost:4000}"
 
 response=$(curl -sS -w "\n%{http_code}" "$MINUTE_URL/api/raycast/timer" \
