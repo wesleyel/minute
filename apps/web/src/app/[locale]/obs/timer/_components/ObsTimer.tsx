@@ -12,6 +12,7 @@ type TimerStatus = {
   currentDuration: number;
   activeTodayDuration: number;
   todayProjectDuration: number;
+  todayTotalDuration: number;
   runningTimeEntry: {
     description: string;
     folderId: string;
@@ -71,10 +72,13 @@ export const ObsTimer = () => {
   const todayProjectDuration =
     (status?.todayProjectDuration ?? 0) +
     (activeTodayDuration - (status?.activeTodayDuration ?? 0));
+  const todayTotalDuration =
+    (status?.todayTotalDuration ?? 0) +
+    (activeTodayDuration - (status?.activeTodayDuration ?? 0));
 
   return (
     <main className="flex min-h-screen items-start bg-transparent p-4 text-white">
-      <section className="w-[min(100vw,32rem)] rounded-lg border border-white/20 bg-black/45 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur-md">
+      <section className="w-[min(100vw,32rem)] border border-white/20 bg-black/45 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.35)] backdrop-blur-md">
         <div className="mb-4 flex items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
@@ -102,6 +106,10 @@ export const ObsTimer = () => {
           <dt className="text-white/60">Today project</dt>
           <dd className="font-mono text-white tabular-nums">
             {formatDuration(todayProjectDuration)}
+          </dd>
+          <dt className="text-white/60">Today total</dt>
+          <dd className="font-mono text-white tabular-nums">
+            {formatDuration(todayTotalDuration)}
           </dd>
           <dt className="text-white/60">Started</dt>
           <dd className="font-mono text-white tabular-nums">

@@ -149,8 +149,8 @@ variable to that user's UUID.
 Raycast script commands are in `raycast/`:
 
 ```sh
-raycast/toggle-minute-timer.sh "Task note" "Folder name"
-raycast/start-minute-timer.sh "Task note" "Folder name"
+raycast/start-minute-timer.sh "Folder name" "Task note"
+raycast/toggle-minute-timer.sh
 raycast/stop-minute-timer.sh
 raycast/minute-timer-status.sh
 ```

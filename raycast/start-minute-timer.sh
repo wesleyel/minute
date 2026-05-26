@@ -8,18 +8,30 @@
 #
 # Optional parameters:
 # @raycast.icon ✅
-# @raycast.description Start a Minute timer with the selected folder and note.
+# @raycast.description Start a Minute timer and cache the selected folder and note.
 # @raycast.argument1 { "type": "dropdown", "placeholder": "分类", "data": [{ "title": "数学", "value": "数学" }, { "title": "408", "value": "408" }, { "title": "英语", "value": "英语" }] }
 # @raycast.argument2 { "type": "text", "placeholder": "note", "optional": true }
 
 set -euo pipefail
 
-# 参数顺序：$1 是分类，$2 是 note；note 为空时复用脚本目录里的上一次 note。
+# 参数顺序：$1 是分类，$2 是 note；note 为空时复用缓存里的上一次 note。
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+CACHE_PATH="$SCRIPT_DIR/.minute-timer-cache.json"
 LAST_NOTE_PATH="$SCRIPT_DIR/.start-minute-timer-last-note"
 MINUTE_URL="${MINUTE_URL:-http://localhost:4000}"
 FOLDER="${1:-}"
 NOTE="${2:-}"
+
+if [[ -z "$NOTE" && -r "$CACHE_PATH" ]]; then
+  NOTE=$(node -e '
+const fs = require("fs");
+try {
+  const cache = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+  process.stdout.write(typeof cache.description === "string" ? cache.description : "");
+} catch {
+}
+' "$CACHE_PATH")
+fi
 
 if [[ -z "$NOTE" && -r "$LAST_NOTE_PATH" ]]; then
   NOTE=$(<"$LAST_NOTE_PATH")
@@ -54,9 +66,23 @@ console.error(body.error ?? "Minute timer request failed");
   exit 1
 fi
 
+# shellcheck disable=SC2016
 node -e '
 const status = JSON.parse(process.argv[1]);
 console.log(`Started: ${status.runningTimeEntry.description}`);
 ' "$response_body"
 
-printf "%s" "$NOTE" > "$LAST_NOTE_PATH"
+# shellcheck disable=SC2016
+node -e '
+const fs = require("fs");
+const [, cachePath, description, folder] = process.argv;
+const cache = { description };
+if (folder) {
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(folder)) {
+    cache.folderId = folder;
+  } else {
+    cache.folder = folder;
+  }
+}
+fs.writeFileSync(cachePath, `${JSON.stringify(cache, null, 2)}\n`);
+' "$CACHE_PATH" "$NOTE" "$FOLDER"

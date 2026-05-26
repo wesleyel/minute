@@ -8,37 +8,64 @@
 #
 # Optional parameters:
 # @raycast.icon 🔄
-# @raycast.description Start the timer when idle, or stop the running timer.
-# @raycast.argument1 { "type": "dropdown", "placeholder": "分类", "data": [{ "title": "数学", "value": "数学" }, { "title": "408", "value": "408" }, { "title": "英语", "value": "英语" }] }
-# @raycast.argument2 { "type": "text", "placeholder": "note", "optional": true }
+# @raycast.description Stop the running timer, or resume the cached timer when idle.
 
 set -euo pipefail
 
-# 参数顺序：$1 是分类，$2 是 note；启动时 note 为空则复用脚本目录里的上一次 note。
+# 无参数切换：运行中则停止，空闲时读取 start 脚本保存的缓存并继续上一个计时。
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-LAST_NOTE_PATH="$SCRIPT_DIR/.toggle-minute-timer-last-note"
+CACHE_PATH="$SCRIPT_DIR/.minute-timer-cache.json"
+LAST_NOTE_PATH="$SCRIPT_DIR/.start-minute-timer-last-note"
 MINUTE_URL="${MINUTE_URL:-http://localhost:4000}"
-FOLDER="${1:-}"
-NOTE="${2:-}"
 
-if [[ -z "$NOTE" && -r "$LAST_NOTE_PATH" ]]; then
-  NOTE=$(<"$LAST_NOTE_PATH")
+status_response=$(curl -sS -w "\n%{http_code}" "$MINUTE_URL/api/raycast/timer")
+status_http_status=$(printf "%s" "$status_response" | tail -n 1)
+status_response_body=$(printf "%s" "$status_response" | sed '$d')
+
+if [[ "$status_http_status" != 2* ]]; then
+  node -e '
+const body = JSON.parse(process.argv[1]);
+console.error(body.error ?? "Minute timer request failed");
+' "$status_response_body"
+  exit 1
 fi
 
-NOTE="${NOTE:-Raycast timer}"
+is_running=$(node -e '
+const status = JSON.parse(process.argv[1]);
+process.stdout.write(status.isRunning ? "true" : "false");
+' "$status_response_body")
 
-body=$(node -e '
-const [, action, description, folder] = process.argv;
-const body = { action, description };
-if (folder) {
-  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(folder)) {
-    body.folderId = folder;
-  } else {
-    body.folder = folder;
+if [[ "$is_running" == "true" ]]; then
+  body='{"action":"stop"}'
+else
+  body=$(node -e '
+const fs = require("fs");
+const [, cachePath, legacyNotePath] = process.argv;
+const body = { action: "start" };
+
+if (fs.existsSync(cachePath)) {
+  const cache = JSON.parse(fs.readFileSync(cachePath, "utf8"));
+  if (typeof cache.description === "string" && cache.description.length > 0) {
+    body.description = cache.description;
   }
+  if (typeof cache.folderId === "string" && cache.folderId.length > 0) {
+    body.folderId = cache.folderId;
+  } else if (typeof cache.folder === "string" && cache.folder.length > 0) {
+    body.folder = cache.folder;
+  }
+} else if (fs.existsSync(legacyNotePath)) {
+  const description = fs.readFileSync(legacyNotePath, "utf8");
+  if (description.length > 0) {
+    body.description = description;
+  }
+} else {
+  console.error("No cached Minute timer. Run Start Minute Timer once first.");
+  process.exit(64);
 }
+
 process.stdout.write(JSON.stringify(body));
-' toggle "$NOTE" "$FOLDER")
+' "$CACHE_PATH" "$LAST_NOTE_PATH")
+fi
 
 response=$(curl -sS -w "\n%{http_code}" "$MINUTE_URL/api/raycast/timer" \
   -H "Content-Type: application/json" \
@@ -54,13 +81,12 @@ console.error(body.error ?? "Minute timer request failed");
   exit 1
 fi
 
+# shellcheck disable=SC2016
 node -e '
-const fs = require("fs");
 const status = JSON.parse(process.argv[1]);
 if (status.isRunning) {
-  fs.writeFileSync(process.argv[3], process.argv[2]);
   console.log(`Started: ${status.runningTimeEntry.description}`);
 } else {
   console.log("Stopped");
 }
-' "$response_body" "$NOTE" "$LAST_NOTE_PATH"
+' "$response_body"

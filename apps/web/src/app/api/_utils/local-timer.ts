@@ -87,6 +87,11 @@ export const getLocalTimerStatus = async () => {
   const now = new Date();
   const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
+  const todaySummary = await getTimeEntrySummary(db)({
+    userId,
+    startDate: todayStart,
+    endDate: todayEnd,
+  });
   const folder =
     runningTimeEntry === null
       ? null
@@ -101,15 +106,14 @@ export const getLocalTimerStatus = async () => {
     runningTimeEntry === null
       ? 0
       : Number(
-          (
-            await getTimeEntrySummary(db)({
-              userId,
-              startDate: todayStart,
-              endDate: todayEnd,
-            })
-          ).find(({ folderId }) => folderId === runningTimeEntry.folderId)
-            ?.duration ?? 0n,
+          todaySummary.find(
+            ({ folderId }) => folderId === runningTimeEntry.folderId,
+          )?.duration ?? 0n,
         );
+  const savedTodayTotalDuration = todaySummary.reduce(
+    (total, { duration }) => total + Number(duration),
+    0,
+  );
   const activeTodayDuration =
     runningTimeEntry === null
       ? 0
@@ -132,6 +136,7 @@ export const getLocalTimerStatus = async () => {
     currentDuration,
     activeTodayDuration,
     todayProjectDuration: savedTodayDuration + activeTodayDuration,
+    todayTotalDuration: savedTodayTotalDuration + activeTodayDuration,
     runningTimeEntry,
     folder,
   };
