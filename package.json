@@ -19,6 +19,7 @@
     "db:migrate:deploy": "pnpm -F @minute/prisma db:migrate:deploy",
     "db:test:studio": "pnpm -F @minute/prisma db:test:studio",
     "db:test:push": "pnpm -F @minute/prisma db:test:push",
+    "db:backup-migrate-from-postgres": "bash scripts/backup-and-migrate-from-postgres.sh",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --check .",
     "format:fix": "turbo run format:fix && prettier -w .",
@@ -27,6 +28,8 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "better-sqlite3": "^12.10.0",
+    "pg": "^8.16.0",
     "@eslint/js": "^9.39.2",
     "@secretlint/secretlint-rule-preset-recommend": "^11.0.0",
     "eslint": "^9.39.2",
