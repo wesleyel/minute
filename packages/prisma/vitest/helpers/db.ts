@@ -1,8 +1,8 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../../generated/prisma/client";
+import { createPrismaClient } from "../../src/create-prisma-client";
 
-const adapter = new PrismaPg({
-  connectionString: process.env["POSTGRES_PRISMA_URL"],
-});
+const databaseUrl = process.env["DATABASE_URL"];
+if (databaseUrl === undefined) {
+  throw new Error("DATABASE_URL is not set.");
+}
 
-export const db = new PrismaClient({ adapter });
+export const db = createPrismaClient(databaseUrl);

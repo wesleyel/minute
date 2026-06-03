@@ -4,8 +4,7 @@
   "globalEnv": [
     "CI",
     "SKIP_ENV_VALIDATION",
-    "POSTGRES_PRISMA_URL",
-    "POSTGRES_URL_NON_POOLING",
+    "DATABASE_URL",
     "ORIGIN",
     "NEXTAUTH_URL",
     "NEXTAUTH_SECRET",

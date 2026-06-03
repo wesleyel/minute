@@ -5,10 +5,6 @@ import { taskSchema } from "@minute/schemas";
 import { contract } from "@minute/utils";
 import { z } from "zod";
 
-const escapeLike = (value: string) => {
-  return value.replace(/[_%\\]/g, (match) => "\\" + match);
-};
-
 export const getSuggestionTasks = (db: PrismaClient) =>
   contract(
     {
@@ -19,17 +15,17 @@ export const getSuggestionTasks = (db: PrismaClient) =>
       output: z.promise(z.array(taskSchema)),
     },
     async (input) => {
-      return db.task.findMany({
-        where: {
-          userId: input.userId,
-          folder: {
-            userId: input.userId,
-          },
-          description: {
-            contains: escapeLike(input.description),
-          },
-        },
-        take: 20,
-      });
+      return z.array(taskSchema).parse(
+        await db.$queryRaw`
+          SELECT Task.*
+          FROM Task
+            INNER JOIN Folder ON Task.folderId = Folder.id
+          WHERE
+            Task.userId = ${input.userId}
+            AND Folder.userId = ${input.userId}
+            AND instr(Task.description, ${input.description}) > 0
+          LIMIT 20
+        `,
+      );
     },
   );

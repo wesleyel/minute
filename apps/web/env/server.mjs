@@ -3,7 +3,7 @@ import { z } from "zod";
 
 export const serverEnv = createEnv({
   server: {
-    POSTGRES_PRISMA_URL: z.string().url().startsWith("postgres"),
+    DATABASE_URL: z.string().startsWith("file:"),
     NEXTAUTH_URL: z.string().url().startsWith("http"),
     NEXTAUTH_SECRET: z.string(),
     ALLOWED_IPS: z.string().optional(),

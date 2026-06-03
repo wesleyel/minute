@@ -43,8 +43,8 @@ export const getTimeEntrySummary = (db: PrismaClient) =>
             WHERE
               "TimeEntry"."startedAt" >= ${input.startDate}
               AND "TimeEntry"."startedAt" <= ${input.endDate}
-              AND "Task"."userId" = ${input.userId}::uuid
-              AND "Folder"."userId" = ${input.userId}::uuid
+              AND "Task"."userId" = ${input.userId}
+              AND "Folder"."userId" = ${input.userId}
             GROUP BY
               "Folder"."id";
           `,

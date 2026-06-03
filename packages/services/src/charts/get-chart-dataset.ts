@@ -1,10 +1,14 @@
 import "server-only";
 
-import { type PrismaClient } from "@minute/prisma";
+import { Prisma, type PrismaClient } from "@minute/prisma";
 import { contract } from "@minute/utils";
 import { format, isBefore } from "date-fns";
 import * as R from "remeda";
 import { z } from "zod";
+import {
+  sqliteDateTruncFormat,
+  sqliteTimezoneModifier,
+} from "../_utils/sqlite-timezone";
 
 export const getChartDataset = (db: PrismaClient) =>
   contract(
@@ -118,16 +122,27 @@ export const getChartDataset = (db: PrismaClient) =>
                 },
               })
             ).map(({ descendantId }) => descendantId);
+            if (targetFolderIds.length === 0) {
+              return {
+                folderId,
+                data: [],
+              };
+            }
+            const timezoneModifier = sqliteTimezoneModifier(
+              input.timeZone,
+              input.startDate,
+            );
+            const dateFormat = sqliteDateTruncFormat(input.datePart);
             const data = await z.promise(
               z.array(
                 z.strictObject({
-                  date: z.date(),
+                  date: z.coerce.date(),
                   duration: z.bigint().nullable(),
                 }),
               ),
             ).parse(db.$queryRaw`
             SELECT
-              date_trunc(${input.datePart}, "TimeEntry"."startedAt" AT TIME ZONE ${input.timeZone}) AS date,
+              strftime(${dateFormat}, datetime("TimeEntry"."startedAt", ${timezoneModifier})) AS date,
               SUM("TimeEntry"."duration") as "duration"
             FROM "Folder"
               JOIN "Task" ON "Folder"."id" = "Task"."folderId" AND "Folder"."userId" = "Task"."userId"
@@ -135,9 +150,9 @@ export const getChartDataset = (db: PrismaClient) =>
             WHERE
               "TimeEntry"."startedAt" >= ${input.startDate}
               AND "TimeEntry"."startedAt" <= ${input.endDate}
-              AND "Task"."userId" = ${input.userId}::uuid
-              AND "Folder"."userId" = ${input.userId}::uuid
-              AND "Folder"."id" = ANY(${`{${targetFolderIds.join(",")}}`}::uuid[])
+              AND "Task"."userId" = ${input.userId}
+              AND "Folder"."userId" = ${input.userId}
+              AND "Folder"."id" IN (${Prisma.join(targetFolderIds)})
             GROUP BY
               date
           `);

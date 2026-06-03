@@ -8,7 +8,7 @@
     "build:graph": "turbo run build --graph=graph.png",
     "start": "turbo run start",
     "test:e2e": "turbo run test:e2e",
-    "test:unit": "turbo run test:unit",
+    "test:unit": "turbo run test:unit --concurrency=1",
     "test:unit:coverage": "turbo run test:unit:coverage",
     "lint": "eslint --max-warnings=0 '**/*.{ts,tsx,js,jsx,mjs}'",
     "type-check": "turbo run type-check",

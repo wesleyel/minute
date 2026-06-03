@@ -11,7 +11,7 @@ generator factory {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
 }
 
 enum ChartType {
@@ -19,20 +19,20 @@ enum ChartType {
 }
 
 model Account {
-  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId            String   @db.Uuid
+  id                String   @id @default(uuid())
+  userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?  @db.Text
+  id_token          String?
   session_state     String?
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -40,20 +40,20 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String   @id @default(uuid())
   sessionToken String   @unique
-  userId       String   @db.Uuid
-  expires      DateTime @db.Timestamptz(3)
+  userId       String
+  expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model User {
-  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                String            @id @default(uuid())
   name              String?
   email             String?           @unique
-  emailVerified     DateTime?         @db.Timestamptz(3)
+  emailVerified     DateTime?
   image             String?
   accounts          Account[]
   sessions          Session[]
@@ -63,8 +63,8 @@ model User {
   tasks             Task[]
   charts            Chart[]
   categories        Category[]
-  createdAt         DateTime          @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime          @updatedAt @db.Timestamptz(3)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 }
 
 enum UserSecurityLogType {
@@ -76,45 +76,45 @@ enum UserSecurityLogType {
 }
 
 model UserSecurityLog {
-  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id                String              @id @default(uuid())
   type              UserSecurityLogType
   name              String?
   provider          String?
   providerAccountId String?
   userAgent         String?
   ipAddress         String?
-  createdAt         DateTime            @default(now()) @db.Timestamptz(3)
+  createdAt         DateTime            @default(now())
 }
 
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([identifier, token])
 }
 
 model RunningTimeEntry {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  folderId    String   @unique @db.Uuid
-  userId      String   @unique @db.Uuid
+  id          String   @id @default(uuid())
+  folderId    String   @unique
+  userId      String   @unique
   description String
-  startedAt   DateTime @db.Timestamptz(3)
+  startedAt   DateTime
   folder      Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Folder {
-  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId           String            @db.Uuid
+  id               String            @id @default(uuid())
+  userId           String
   name             String
   emoji            String
   color            String
-  parentId         String?           @db.Uuid
+  parentId         String?
   order            Int
   children         Folder[]          @relation("Children")
   user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -125,109 +125,109 @@ model Folder {
   tasks            Task[]
   chartFolders     ChartFolder[]
   categoryFolder   CategoryFolder[]
-  createdAt        DateTime          @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime          @updatedAt @db.Timestamptz(3)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model FolderHierarchy {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @db.Uuid
-  ancestorId   String?  @db.Uuid
-  descendantId String   @db.Uuid
+  id           String   @id @default(uuid())
+  userId       String
+  ancestorId   String?
+  descendantId String
   depth        Int
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   ancestor     Folder?  @relation("Ancestors", fields: [ancestorId], references: [id], onDelete: Cascade)
   descendant   Folder   @relation("Descendants", fields: [descendantId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@unique([ancestorId, descendantId, depth])
 }
 
 model Task {
-  id          String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  folderId    String      @db.Uuid
-  userId      String      @db.Uuid
+  id          String      @id @default(uuid())
+  folderId    String
+  userId      String
   description String
   folder      Folder      @relation(fields: [folderId], references: [id], onDelete: Cascade)
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   timeEntries TimeEntry[]
-  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime    @updatedAt @db.Timestamptz(3)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@index([userId, description])
 }
 
 model TimeEntry {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  taskId    String   @db.Uuid
+  id        String   @id @default(uuid())
+  taskId    String
   duration  Int
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  startedAt DateTime @db.Timestamptz(3)
-  stoppedAt DateTime @db.Timestamptz(3)
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  startedAt DateTime
+  stoppedAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([startedAt, id])
 }
 
 model Category {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String           @db.Uuid
+  id              String           @id @default(uuid())
+  userId          String
   name            String
   emoji           String
   color           String
   user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   chartCategory   ChartCategory[]
   categoryFolders CategoryFolder[]
-  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 model CategoryFolder {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  categoryId String   @db.Uuid
-  folderId   String   @db.Uuid
+  id         String   @id @default(uuid())
+  categoryId String
+  folderId   String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   folder     Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([categoryId, folderId])
 }
 
 model Chart {
-  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId          String          @db.Uuid
+  id              String          @id @default(uuid())
+  userId          String
   type            ChartType
   name            String
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   chartCategories ChartCategory[]
   chartFolders    ChartFolder[]
-  createdAt       DateTime        @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime        @updatedAt @db.Timestamptz(3)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model ChartFolder {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  chartId   String   @db.Uuid
-  folderId  String   @db.Uuid
+  id        String   @id @default(uuid())
+  chartId   String
+  folderId  String
   chart     Chart    @relation(fields: [chartId], references: [id], onDelete: Cascade)
   folder    Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([chartId, folderId])
 }
 
 model ChartCategory {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  chartId    String   @db.Uuid
-  categoryId String   @db.Uuid
+  id         String   @id @default(uuid())
+  chartId    String
+  categoryId String
   chart      Chart    @relation(fields: [chartId], references: [id], onDelete: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([chartId, categoryId])
 }

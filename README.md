@@ -79,13 +79,7 @@ GITHUB_SECRET= # paste the client secret here.
 pnpm install
 ```
 
-7. Start Docker containers to run the Postgres database:
-
-```
-docker-compose up
-```
-
-8. Migrate the database and start the development server:
+7. Migrate the database and start the development server:
 
 ```
 pnpm db:migrate:deploy && pnpm dev
@@ -95,13 +89,7 @@ pnpm db:migrate:deploy && pnpm dev
 
 ## Build and run the production service locally
 
-After completing the local setup above, make sure the Postgres container is running:
-
-```sh
-docker compose up -d db
-```
-
-Apply database migrations and build the app:
+After completing the local setup above, apply database migrations and build the app:
 
 ```sh
 pnpm db:migrate:deploy
