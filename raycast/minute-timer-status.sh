@@ -8,11 +8,11 @@
 #
 # Optional parameters:
 # @raycast.icon 📊
-# @raycast.description Show whether the Minute timer is idle or running.
+# @raycast.description Show timer state, current session, and today's total duration.
 
 set -euo pipefail
 
-# 查询当前 Minute timer 状态；运行中时输出已计时时长和 note，否则输出 Idle。
+# 查询当前 Minute timer 状态；输出今日累计时长，运行中时附带当前会话与 note。
 MINUTE_URL="${MINUTE_URL:-http://localhost:4000}"
 
 response=$(curl -sS -w "\n%{http_code}" "$MINUTE_URL/api/raycast/timer")
@@ -35,9 +35,11 @@ const format = (seconds) => {
   const s = String(seconds % 60).padStart(2, "0");
   return `${h}:${m}:${s}`;
 };
+const today = format(status.todayTotalDuration ?? 0);
 if (!status.isRunning) {
-  console.log("Idle");
+  console.log(`今日 ${today}`);
 } else {
-  console.log(`${format(status.currentDuration)} ${status.runningTimeEntry.description}`);
+  const note = status.runningTimeEntry.description;
+  console.log(`今日 ${today} · ${format(status.currentDuration)} ${note}`);
 }
 ' "$response_body"
