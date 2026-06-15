@@ -2,6 +2,10 @@ import "server-only";
 
 import { NextResponse } from "next/server";
 import {
+  getLocalRaycastFolders,
+  getLocalRaycastRecentDescriptions,
+} from "../../_utils/local-raycast";
+import {
   getLocalTimerStatus,
   raycastTimerRequestSchema,
   startLocalTimer,
@@ -9,9 +13,24 @@ import {
   updateLocalTimer,
 } from "../../_utils/local-timer";
 
-export const GET = async () => {
+export const GET = async (req: Request) => {
   try {
-    return NextResponse.json(await getLocalTimerStatus());
+    const url = new URL(req.url);
+    const status = await getLocalTimerStatus();
+
+    if (url.searchParams.get("include") !== "meta") {
+      return NextResponse.json(status);
+    }
+
+    const limitParam = url.searchParams.get("limit");
+    const limit =
+      limitParam === null ? 20 : Math.min(Math.max(Number(limitParam), 1), 50);
+
+    return NextResponse.json({
+      ...status,
+      folders: await getLocalRaycastFolders(),
+      recentDescriptions: await getLocalRaycastRecentDescriptions(limit),
+    });
   } catch (error) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
